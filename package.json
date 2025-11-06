@@ -1,11 +1,14 @@
 {
     "name": "@agentic-layer/n8n-nodes-a2a",
     "version": "0.1.0",
-    "description": "",
+    "description": "n8n node for Agent-to-Agent (A2A) protocol communication",
     "license": "MIT",
     "homepage": "",
     "keywords": [
-        "n8n-community-node-package"
+        "n8n-community-node-package",
+        "a2a",
+        "agent-to-agent",
+        "ai-agents"
     ],
     "author": {
         "name": "Nicolai Ommer",
@@ -13,7 +16,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+        "url": "https://github.com/agentic-layer/n8n-nodes-a2a.git"
     },
    "scripts": {
 		"build": "n8n-node build",
@@ -31,11 +34,10 @@
         "n8nNodesApiVersion": 1,
         "strict": true,
         "credentials": [
-            "dist/credentials/GithubIssuesApi.credentials.js",
-            "dist/credentials/GithubIssuesOAuth2Api.credentials.js"
+            "dist/credentials/A2aApi.credentials.js"
         ],
         "nodes": [
-            "dist/nodes/GithubIssues/GithubIssues.node.js"
+            "dist/nodes/A2a/A2a.node.js"
         ]
     },
     "devDependencies": {
