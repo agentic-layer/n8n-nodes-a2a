@@ -17,6 +17,8 @@ The A2A protocol is an open standard for agent-to-agent communication, enabling 
 - `npm run lint:fix` - Lint and automatically fix issues
 - `npm run release` - Create a release
 - `npm run prepublishOnly` - Pre-release checks (runs automatically before publishing)
+- `npm run generate:types` - Generate TypeScript types from A2A schema
+- `npm run update:schema` - Update A2A schema from GitHub and regenerate types
 
 Note: There are no test scripts configured in this project.
 
@@ -35,22 +37,16 @@ This project follows n8n's community node architecture with a simple, single-ope
 - Returns full A2A Task object as output
 
 **A2A Protocol Implementation**:
-- Uses JSON-RPC 2.0 format for all requests
-- POST to `{serverUrl}/message:send` endpoint
-- Request structure:
-  ```json
-  {
-    "jsonrpc": "2.0",
-    "method": "message/send",
-    "params": {
-      "message": { "role": "user", "parts": [{"type": "text", "text": "..."}] },
-      "contextId": "..." (optional)
-    },
-    "id": "unique-request-id"
-  }
-  ```
+- Uses JSON-RPC 2.0 format for all requests (fully typed via generated types)
+- POST to `{serverUrl}` endpoint
+- Constructs proper A2A Message objects with:
+  - `kind: 'message'` discriminator
+  - Unique `messageId` (generated per message)
+  - `parts` array containing `TextPart` objects with `kind: 'text'`
+  - Optional `contextId` for conversation threading
 - Returns immediately with current task status (no polling)
-- Response contains the full Task object with status, message, and artifacts
+- Response contains the full `Task` object with status, message, and artifacts
+- All types imported from `types/a2a` for compile-time safety
 
 **HTTP Communication**:
 - Uses n8n's built-in `this.helpers.httpRequest()` method
@@ -72,6 +68,42 @@ This project follows n8n's community node architecture with a simple, single-ope
 - Target: ES2019 with CommonJS modules
 - Output: `dist/` directory
 - Includes type declarations and source maps
+
+### Type Generation System
+
+This project uses an automated type generation system to maintain type-safe A2A protocol implementation:
+
+**Generated Types** (`types/a2a/index.ts`):
+- Auto-generated from the official A2A JSON Schema
+- Contains all A2A protocol types: `SendMessageRequest`, `Task`, `Message`, `Part`, etc.
+- DO NOT manually edit - regenerate using `npm run generate:types`
+- Committed to repository for reproducibility
+
+**A2A Schema** (`types/a2a/schema.json`):
+- Official A2A protocol JSON Schema (JSON Schema Draft 7)
+- Downloaded from https://github.com/a2aproject/A2A
+- Committed to repository for version control
+- Update using `npm run update:schema`
+
+**Generation Scripts**:
+- `scripts/generate-types.js` - Converts schema.json to TypeScript types using `json-schema-to-typescript`
+- `scripts/update-schema.js` - Downloads latest schema from GitHub and regenerates types
+
+**Workflow**:
+1. When A2A protocol updates, run `npm run update:schema`
+2. Review changes to `types/a2a/schema.json` and `types/a2a/index.ts`
+3. Update node implementation if breaking changes exist
+4. Commit both schema.json and index.ts files
+5. To regenerate without updating schema: `npm run generate:types`
+
+**Using Generated Types**:
+```typescript
+import type { SendMessageRequest, Task, Message, TextPart } from '../../types/a2a';
+
+// All A2A protocol types are fully typed and documented
+const request: SendMessageRequest = { /* ... */ };
+const task: Task = response.result;
+```
 
 ## A2A Protocol Concepts
 

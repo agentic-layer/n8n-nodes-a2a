@@ -18,15 +18,17 @@
         "type": "git",
         "url": "https://github.com/agentic-layer/n8n-nodes-a2a.git"
     },
-   "scripts": {
-		"build": "n8n-node build",
-		"build:watch": "tsc --watch",
-		"dev": "n8n-node dev",
-		"lint": "n8n-node lint",
+    "scripts": {
+        "build": "n8n-node build",
+        "build:watch": "tsc --watch",
+        "dev": "n8n-node dev",
+        "lint": "n8n-node lint",
         "lint:fix": "n8n-node lint --fix",
-		"release": "n8n-node release",
-		"prepublishOnly": "n8n-node prerelease"
-	},
+        "release": "n8n-node release",
+        "prepublishOnly": "n8n-node prerelease",
+        "generate:types": "node scripts/generate-types.js",
+        "update:schema": "node scripts/update-schema.js"
+    },
     "files": [
         "dist"
     ],

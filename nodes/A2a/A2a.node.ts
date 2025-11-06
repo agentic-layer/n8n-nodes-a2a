@@ -5,6 +5,7 @@ import {
 	type INodeType,
 	type INodeTypeDescription,
 } from 'n8n-workflow';
+import type { SendMessageRequest, Task, TextPart, Message } from '../../types/a2a';
 
 export class A2a implements INodeType {
 	description: INodeTypeDescription = {
@@ -61,42 +62,38 @@ export class A2a implements INodeType {
 
 				const serverUrl = credentials.serverUrl as string;
 
-				// Generate unique request ID
+				// Generate unique IDs
 				const requestId = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+				const messageId = `msg-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
+				// Build text part according to A2A spec
+				const textPart: TextPart = {
+					kind: 'text',
+					text: message,
+				};
+
+				// Build message according to A2A spec
+				const a2aMessage: Message = {
+					kind: 'message',
+					messageId: messageId,
+					parts: [textPart],
+					role: 'user',
+				};
+
+				// Add contextId to message if provided
+				if (contextId) {
+					a2aMessage.contextId = contextId;
+				}
 
 				// Build JSON-RPC 2.0 request payload
-				const requestBody: {
-					jsonrpc: string;
-					method: string;
-					params: {
-						message: {
-							role: string;
-							parts: Array<{ type: string; text: string }>;
-						};
-						contextId?: string;
-					};
-					id: string;
-				} = {
+				const requestBody: SendMessageRequest = {
 					jsonrpc: '2.0',
 					method: 'message/send',
 					params: {
-						message: {
-							role: 'user',
-							parts: [
-								{
-									type: 'text',
-									text: message,
-								},
-							],
-						},
+						message: a2aMessage,
 					},
 					id: requestId,
 				};
-
-				// Add contextId if provided
-				if (contextId) {
-					requestBody.params.contextId = contextId;
-				}
 
 				// Make HTTP request
 				const response = await this.helpers.httpRequest({
@@ -109,9 +106,13 @@ export class A2a implements INodeType {
 					json: true,
 				});
 
-				// Return the full task object from the result field
+				// Extract the Task from the JSON-RPC response
+				const task = response.result as Task;
+
+				// Return the full task object
+				// Note: Cast to unknown first to satisfy n8n's IDataObject type requirement
 				returnData.push({
-					json: response.result || response,
+					json: task as unknown as typeof returnData[0]['json'],
 					pairedItem: i,
 				});
 			} catch (error) {
