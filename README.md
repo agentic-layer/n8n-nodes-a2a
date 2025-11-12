@@ -1,6 +1,6 @@
 # @agentic-layer/n8n-nodes-a2a
 
-This is an n8n community node. It lets you use GitHub Issues in your n8n workflows.
+This is an n8n community node that provides integration with the A2A (Agent-to-Agent) protocol, enabling your n8n workflows to communicate with AI agents.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
 
@@ -8,7 +8,6 @@ This is an n8n community node. It lets you use GitHub Issues in your n8n workflo
 [Operations](#operations)
 [Credentials](#credentials)
 [Compatibility](#compatibility)
-[Usage](#usage)
 [Resources](#resources)
 
 ## Installation
@@ -17,57 +16,50 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-- Issues
-    - Get an issue
-    - Get many issues in a repository
-    - Create a new issue
-- Issue Comments
-    - Get many issue comments
+**Send Message**
+- Send a text message to an A2A-compatible AI agent
+- Optionally provide a `contextId` to maintain conversation context
+- Returns the full task object with status, response message, and artifacts
 
 ## Credentials
 
-You can use either access token or OAuth2 to use this node.
+**A2A API**
+- **Server URL**: The base URL of the A2A-compatible agent (e.g., `https://agent.example.com/v1`)
+- Authentication is not yet implemented in the current version
 
-### Access token
-
-1. Open your GitHub profile [Settings](https://github.com/settings/profile).
-2. In the left navigation, select [Developer settings](https://github.com/settings/apps).
-3. In the left navigation, under Personal access tokens, select Tokens (classic).
-4. Select Generate new token > Generate new token (classic).
-5. Enter a descriptive name for your token in the Note field, like n8n integration.
-6. Select the Expiration you'd like for the token, or select No expiration.
-7. Select Scopes for your token. For most of the n8n GitHub nodes, add the `repo` scope.
-    - A token without assigned scopes can only access public information.
-8. Select Generate token.
-9. Copy the token.
-
-Refer to [Creating a personal access token (classic)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) for more information. Refer to Scopes for OAuth apps for more information on GitHub scopes.
-
-![Generated Access token in GitHub](https://docs.github.com/assets/cb-17251/mw-1440/images/help/settings/personal-access-tokens.webp)
-
-### OAuth2
-
-If you're self-hosting n8n, create a new GitHub [OAuth app](https://docs.github.com/en/apps/oauth-apps):
-
-1. Open your GitHub profile [Settings](https://github.com/settings/profile).
-2. In the left navigation, select [Developer settings](https://github.com/settings/apps).
-3. In the left navigation, select OAuth apps.
-4. Select New OAuth App.
-    - If you haven't created an app before, you may see Register a new application instead. Select it.
-5. Enter an Application name, like n8n integration.
-6. Enter the Homepage URL for your app's website.
-7. If you'd like, add the optional Application description, which GitHub displays to end-users.
-8. From n8n, copy the OAuth Redirect URL and paste it into the GitHub Authorization callback URL.
-9. Select Register application.
-10. Copy the Client ID and Client Secret this generates and add them to your n8n credential.
-
-Refer to the [GitHub Authorizing OAuth apps documentation](https://docs.github.com/en/apps/oauth-apps/using-oauth-apps/authorizing-oauth-apps) for more information on the authorization process.
+To configure credentials:
+1. In n8n, go to Credentials
+2. Create new credentials of type "A2A API"
+3. Enter the Server URL of your A2A-compatible agent
+4. Test the connection (validates by fetching the agent card from `/.well-known/agent-card.json`)
 
 ## Compatibility
 
 Compatible with n8n@1.60.0 or later
 
+## What is A2A?
+
+The [A2A protocol](https://a2a-protocol.org) is an open standard for agent-to-agent communication, enabling independent AI agents to discover and communicate with each other. This node allows n8n workflows to interact with any agent that implements the A2A protocol.
+
+## Current Capabilities
+
+This is an MVP (Minimum Viable Product) implementation with the following features:
+
+- Send text messages to A2A-compatible agents via JSON-RPC 2.0
+- Receive immediate task responses (synchronous communication)
+- Support for conversation threading via `contextId` parameter
+- Access to full task details including status, messages, and artifacts
+- Agent discovery via standard `/.well-known/agent-card.json` endpoint
+
+**Not yet implemented:**
+- Authentication
+- Long-running task polling
+- Streaming responses
+- File and data parts (only text messages supported)
+- Task management operations (list, get, cancel)
+
 ## Resources
 
 * [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
-* [GitHub API docs](https://docs.github.com/en/rest/issues)
+* [A2A Protocol documentation](https://a2a-protocol.org)
+* [A2A Protocol specification](https://github.com/a2aproject/A2A)
